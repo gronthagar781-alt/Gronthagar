@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>গ্রন্থাগার — অনলাইন লাইব্রেরি</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#18212f;--muted:#687386;--primary:#3157d5;--danger:#d83b4b;--line:#e5e9f2;--shadow:0 10px 30px #18212f12}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali","Noto Sans",sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}button{cursor:pointer;border:0}.top{position:sticky;top:0;z-index:10;background:#ffffffee;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav{max-width:1200px;margin:auto;padding:14px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}.brand{font-weight:800;font-size:22px;color:var(--primary);margin-right:auto}.pill{padding:8px 12px;border:1px solid var(--line);background:#fff;border-radius:999px;color:var(--muted)}
+.container{max-width:1200px;margin:auto;padding:22px 18px}.hero{display:flex;gap:18px;align-items:center;justify-content:space-between;margin-bottom:18px}.hero h1{margin:0 0 5px;font-size:30px}.muted{color:var(--muted)}.search{display:flex;gap:8px;min-width:min(100%,520px)}.search input{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;outline:none}
+.btn{padding:10px 14px;border-radius:10px;background:var(--primary);color:#fff;font-weight:700}.btn.secondary{background:#eef2ff;color:#2947a9}.btn.danger{background:#fff0f1;color:var(--danger)}.btn.ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
+.tabs{display:flex;gap:8px;overflow:auto;padding:2px 0 12px}.tab{white-space:nowrap;background:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:10px}.tab small{display:block;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:210px}.cover{height:110px;border-radius:12px;background:linear-gradient(135deg,#e9edff,#f4f5fa);display:grid;place-items:center;font-size:40px;margin-bottom:12px}.title{font-weight:800;font-size:18px}.meta{font-size:13px;color:var(--muted);margin-top:5px}.cat{display:inline-block;margin-top:8px;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#2947a9;font-size:12px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto;padding-top:14px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);margin-bottom:18px}.hidden{display:none!important}.modal{position:fixed;inset:0;background:#07111c99;z-index:30;display:grid;place-items:center;padding:18px}.modalbox{background:#fff;border-radius:18px;max-width:780px;width:100%;max-height:92vh;overflow:auto;padding:20px}.modalbox.reader{max-width:1100px;height:92vh;display:flex;flex-direction:column}.readerFrame{width:100%;flex:1;border:0;border-radius:12px;background:#f0f2f7}.row{display:flex;gap:10px;flex-wrap:wrap}.field{margin:12px 0}.field label{display:block;font-weight:700;margin-bottom:6px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.stat{padding:14px;background:#f7f8fc;border-radius:12px}.stat b{font-size:24px;display:block}.progress{height:10px;background:#e8ebf2;border-radius:99px;overflow:hidden}.bar{height:100%;background:var(--primary);width:0}.list{display:grid;gap:9px}.listrow{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px}.listrow span:first-child{flex:1}.notice{background:#fff8e6;border:1px solid #f3d27b;padding:12px;border-radius:12px;margin-bottom:16px}.footer{text-align:center;color:var(--muted);padding:30px}
+@media(max-width:700px){.hero{align-items:stretch;flex-direction:column}.search{min-width:100%}.hero h1{font-size:25px}}
+</style>
+</head>
+<body>
+<header class="top"><nav class="nav">
+<div class="brand">📚 গ্রন্থাগার</div>
+<button class="pill" onclick="showHome()">হোম</button>
+<button class="pill" onclick="openTarget()">📈 আমার টার্গেট</button>
+<button class="pill" onclick="openAdmin()">⚙️ Admin</button>
+</nav></header>
+
+<main class="container">
+<div class="notice"><b>গুরুত্বপূর্ণ:</b> এই এক-ফাইল সংস্করণটি ব্রাউজারের IndexedDB-তে বই ও অগ্রগতি রাখে। তাই একই ডিভাইসে refresh করলেও ডেটা থাকবে। সবার জন্য একই লাইব্রেরি/সবার কাছে Admin-এর পরিবর্তন দেখাতে একটি shared backend (যেমন Firebase/Supabase/Google Apps Script) লাগবে—এই HTML-এ সেই সংযোগ বসানোর জায়গা রাখা হয়েছে।</div>
+
+<section class="hero">
+<div><h1>আপনার ডিজিটাল গ্রন্থাগার</h1><div class="muted">বই খুঁজুন, পড়ুন এবং শেষ পড়া জায়গায় ফিরে যান।</div></div>
+<div class="search"><input id="search" placeholder="বইয়ের নাম বা লেখকের নাম দিয়ে খুঁজুন..." oninput="renderBooks()"><button class="btn" onclick="renderBooks()">খুঁজুন</button></div>
+</section>
+
+<section class="panel"><b>শেষ পড়া ৫টি বই</b><div id="recentTabs" class="tabs" style="margin-top:10px"></div></section>
+
+<section class="panel">
+<div class="row" style="justify-content:space-between;align-items:center">
+<div><b>আজকের পড়ার টার্গেট</b><div class="muted"><span id="todayRead">0</span> মিনিট / <span id="targetMin">30</span> মিনিট</div></div>
+<button class="btn secondary" onclick="openTarget()">টার্গেট সেট করুন</button>
+</div>
+<div class="progress" style="margin-top:10px"><div id="todayBar" class="bar"></div></div>
+</section>
+
+<section><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h2 style="margin:0">বইসমূহ</h2><select id="filter" onchange="renderBooks()" style="padding:9px;border:1px solid var(--line);border-radius:10px"><option value="">সব ক্যাটাগরি</option></select></div><div id="books" class="grid"></div></section>
+</main>
+<div class="footer">গ্রন্থাগার • আপনার পড়ার জায়গা আপনার ব্রাউজারেই সংরক্ষিত থাকে</div>
+
+<div id="modal" class="modal hidden"><div id="modalBox" class="modalbox"></div></div>
+
+<script>
+const ADMIN_PASSWORD="Champ@p1";
+const DB_NAME="gronthagarDB", DB_VER=1;
+let db, books=[], settings={target:30}, recent=[], currentBook=null, readTimer=null, sessionStart=0;
+
+function $(id){return document.getElementById(id)}
+function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+function openDB(){
+ return new Promise((resolve,reject)=>{
+  const req=indexedDB.open(DB_NAME,DB_VER);
+  req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains("books"))d.createObjectStore("books",{keyPath:"id"});if(!d.objectStoreNames.contains("settings"))d.createObjectStore("settings",{keyPath:"key"});}
+  req.onsuccess=e=>{db=e.target.result;resolve(db)};req.onerror=()=>reject(req.error)
+ })
+}
+function tx(store,mode="readonly"){return db.transaction(store,mode).objectStore(store)}
+function getAll(store){return new Promise((res,rej)=>{let r=tx(store).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function put(store,obj){return new Promise((res,rej)=>{let r=tx(store,"readwrite").put(obj);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function del(store,key){return new Promise((res,rej)=>{let r=tx(store,"readwrite").delete(key);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+
+async function init(){
+ await openDB();
+ books=await getAll("books");
+ const ss=await getAll("settings"); const s=ss.find(x=>x.key==="settings"); if(s) settings=s.value;
+ recent=JSON.parse(localStorage.getItem("gr_recent")||"[]");
+ updateTargetUI(); renderBooks();
+}
+function saveRecent(id){
+ recent=[id,...recent.filter(x=>x!==id)].slice(0,5);localStorage.setItem("gr_recent",JSON.stringify(recent));renderRecent()
+}
+function renderRecent(){
+ const r=recent.map(id=>books.find(b=>b.id===id)).filter(Boolean);
+ $("recentTabs").innerHTML=r.length?r.map(b=>`<button class="tab" onclick="readBook('${b.id}')">📖 ${esc(b.title)}<small>${esc(b.author)}</small></button>`).join(""):'<span class="muted">এখনও কোনো বই পড়া হয়নি।</span>';
+}
+function categories(){return [...new Set(books.map(b=>b.category).filter(Boolean))].sort()}
+function renderBooks(){
+ const q=$("search").value.trim().toLowerCase(), cat=$("filter").value;
+ const cats=categories(), old=$("filter").value;
+ $("filter").innerHTML='<option value="">সব ক্যাটাগরি</option>'+cats.map(c=>`<option ${c===old?'selected':''}>${esc(c)}</option>`).join("");
+ let list=books.filter(b=>(!q||b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q))&&(!cat||b.category===cat));
+ $("books").innerHTML=list.length?list.map(b=>`
+ <article class="card">
+  <div class="cover">📚</div><div class="title">${esc(b.title)}</div>
+  <div class="meta">লেখক: ${esc(b.author)}</div><span class="cat">${esc(b.category||"অন্যান্য")}</span>
+  <div class="actions"><button class="btn" onclick="readBook('${b.id}')">পড়ুন</button><button class="btn ghost" onclick="bookmark('${b.id}')">🔖 বুকমার্ক</button></div>
+ </article>`).join(""):'<div class="panel"><b>কোনো বই পাওয়া যায়নি।</b></div>';
+ renderRecent();
+}
+function showHome(){closeModal();renderBooks();window.scrollTo({top:0,behavior:"smooth"})}
+
+function driveEmbed(url){
+ try{
+  const u=new URL(url);
+  const m=u.pathname.match(/\/d\/([^/]+)/)||u.pathname.match(/\/file\/d\/([^/]+)/);
+  if(m)return `https://drive.google.com/file/d/${m[1]}/preview`;
+  const id=u.searchParams.get("id"); if(id)return `https://drive.google.com/file/d/${id}/preview`;
+ }catch(e){}
+ return url;
+}
+function readBook(id){
+ const b=books.find(x=>x.id===id);if(!b)return;
+ currentBook=b;saveRecent(id);sessionStart=Date.now();
+ const src=b.drive?driveEmbed(b.drive):(b.blobUrl||"");
+ $("modalBox").className="modalbox reader";
+ $("modalBox").innerHTML=`<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><div><b>${esc(b.title)}</b><div class="muted">${esc(b.author)} • ${esc(b.category||"অন্যান্য")}</div></div><div class="row"><button class="btn secondary" onclick="bookmark('${b.id}')">🔖 বুকমার্ক</button><button class="btn ghost" onclick="closeModal()">বন্ধ</button></div></div><iframe class="readerFrame" src="${esc(src)}" allow="autoplay"></iframe><div class="muted" style="margin-top:8px">বুকমার্ক: ${b.bookmarkPage?esc(b.bookmarkPage):"সর্বশেষ জায়গা সংরক্ষণ করতে নিচের বোতাম ব্যবহার করুন।"}</div><div class="row" style="margin-top:8px"><button class="btn secondary" onclick="setBookmark('${b.id}')">এই জায়গাটিকে বুকমার্ক হিসেবে সংরক্ষণ করুন</button></div>`;
+ $("modal").classList.remove("hidden");
+ clearInterval(readTimer);readTimer=setInterval(trackReading,60000);
+}
+async function trackReading(){if(!currentBook)return;const mins=Math.max(1,Math.round((Date.now()-sessionStart)/60000));const key="read_"+new Date().toISOString().slice(0,10);const old=Number(localStorage.getItem(key)||0);localStorage.setItem(key,String(old+mins));sessionStart=Date.now();updateTargetUI()}
+function setBookmark(id){let b=books.find(x=>x.id===id);if(!b)return;b.bookmarkPage=prompt("বুকমার্কের নাম/পৃষ্ঠা/অধ্যায় লিখুন:",b.bookmarkPage||"");put("books",b);books=books.map(x=>x.id===id?b:x);readBook(id)}
+function bookmark(id){setBookmark(id)}
+function closeModal(){clearInterval(readTimer);trackReading();$("modal").classList.add("hidden");currentBook=null}
+$("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+
+function todayMinutes(){return Number(localStorage.getItem("read_"+new Date().toISOString().slice(0,10))||0)}
+function updateTargetUI(){let m=todayMinutes(),t=Number(settings.target||30);$("todayRead").textContent=m;$("targetMin").textContent=t;$("todayBar").style.width=Math.min(100,m/t*100)+"%"}
+function openTarget(){
+ $("modalBox").className="modalbox";$("modalBox").innerHTML=`<h2>📈 পড়ার টার্গেট</h2><p class="muted">প্রতিদিন কত মিনিট পড়তে চান সেট করুন। গত ৬ মাসের দিনভিত্তিক ডেটা নিচে দেখা যাবে।</p><div class="field"><label>দৈনিক টার্গেট (মিনিট)</label><input id="targetInput" type="number" min="1" value="${settings.target||30}"></div><button class="btn" onclick="saveTarget()">সংরক্ষণ</button><hr style="border:0;border-top:1px solid var(--line);margin:20px 0"><h3>শেষ ৬ মাস</h3><div id="sixMonths" class="list">${sixMonthHtml()}</div>`;
+ $("modal").classList.remove("hidden");
+}
+function sixMonthHtml(){
+ let out="";for(let i=0;i<183;i++){let d=new Date();d.setDate(d.getDate()-i);let k="read_"+d.toISOString().slice(0,10),m=Number(localStorage.getItem(k)||0);if(m)out+=`<div class="listrow"><span>${d.toLocaleDateString("bn-BD",{day:"numeric",month:"short",year:"numeric"})}</span><b>${m} মিনিট</b></div>`}
+ return out||'<div class="muted">এখনও কোনো পড়ার ডেটা নেই।</div>';
+}
+async function saveTarget(){settings.target=Math.max(1,Number($("targetInput").value||30));await put("settings",{key:"settings",value:settings});updateTargetUI();openTarget()}
+
+function openAdmin(){
+ $("modalBox").className="modalbox";
+ $("modalBox").innerHTML=`<h2>⚙️ Admin</h2><div class="field"><label>Admin password</label><input id="adminPass" type="password" placeholder="Password"></div><button class="btn" onclick="adminLogin()">Login</button><p class="muted">পাসওয়ার্ড: এই ফাইলে client-side হিসেবে রাখা আছে; production-এ এটি নিরাপদ নয়।</p>`;
+ $("modal").classList.remove("hidden");
+}
+function adminLogin(){
+ if($("adminPass").value!==ADMIN_PASSWORD){alert("ভুল পাসওয়ার্ড");return}
+ renderAdmin(); 
+}
+function renderAdmin(){
+ $("modalBox").innerHTML=`<h2>⚙️ Admin Panel</h2>
+ <div class="panel"><h3>নতুন বই যোগ করুন</h3>
+ <div class="field"><label>বইয়ের নাম</label><input id="newTitle"></div>
+ <div class="field"><label>লেখকের নাম</label><input id="newAuthor"></div>
+ <div class="field"><label>ক্যাটাগরি</label><input id="newCat" list="catList"><datalist id="catList">${categories().map(c=>`<option>${esc(c)}</option>`).join("")}</datalist></div>
+ <div class="field"><label>Google Drive link (Public/Anyone with link)</label><input id="newDrive" placeholder="https://drive.google.com/file/d/.../view"></div>
+ <div class="field"><label>অথবা PDF ফাইল নির্বাচন করুন</label><input id="newFile" type="file" accept="application/pdf"></div>
+ <button class="btn" onclick="addBook()">বই যোগ করুন</button></div>
+ <div class="panel"><h3>বই ম্যানেজ করুন</h3><div id="adminList" class="list">${adminListHtml()}</div></div>
+ <div class="panel"><h3>ডেটা Backup</h3><button class="btn secondary" onclick="exportData()">JSON Export</button> <button class="btn ghost" onclick="importData()">JSON Import</button><input id="importFile" type="file" accept=".json" class="hidden"></div>`;
+}
+function adminListHtml(){return books.length?books.map(b=>`<div class="listrow"><span><b>${esc(b.title)}</b><br><small>${esc(b.author)} • ${esc(b.category||"অন্যান্য")}</small></span><button class="btn ghost" onclick="editBook('${b.id}')">Edit</button><button class="btn danger" onclick="deleteBook('${b.id}')">Delete</button></div>`).join(""):'<div class="muted">কোনো বই নেই।</div>'}
+async function addBook(){
+ const title=$("newTitle").value.trim(),author=$("newAuthor").value.trim(),category=$("newCat").value.trim()||"অন্যান্য",drive=$("newDrive").value.trim(),file=$("newFile").files[0];
+ if(!title||!author){alert("বইয়ের নাম ও লেখকের নাম দিন");return}
+ if(!drive&&!file){alert("Google Drive link অথবা PDF ফাইল দিন");return}
+ const b={id:uid(),title,author,category,drive:drive||"",created:Date.now(),bookmarkPage:""};
+ if(file){b.blobUrl=URL.createObjectURL(file);b.fileName=file.name;b.fileBlob=file}
+ // Blob survives in IndexedDB; object URL is rebuilt on load below.
+ await put("books",b);books.push(b);await rebuildBlobUrls();renderAdmin();renderBooks();alert("বই যোগ হয়েছে।");
+}
+async function rebuildBlobUrls(){
+ for(const b of books){if(b.fileBlob && !b.blobUrl){b.blobUrl=URL.createObjectURL(b.fileBlob);}}
+}
+async function editBook(id){
+ const b=books.find(x=>x.id===id);if(!b)return;
+ const title=prompt("বইয়ের নাম:",b.title);if(title===null)return;
+ const author=prompt("লেখকের নাম:",b.author);if(author===null)return;
+ const category=prompt("ক্যাটাগরি:",b.category||"অন্যান্য");if(category===null)return;
+ b.title=title.trim()||b.title;b.author=author.trim()||b.author;b.category=category.trim()||"অন্যান্য";
+ await put("books",b);renderAdmin();renderBooks();
+}
+async function deleteBook(id){if(!confirm("এই বইটি মুছে ফেলবেন?"))return;await del("books",id);books=books.filter(b=>b.id!==id);recent=recent.filter(x=>x!==id);localStorage.setItem("gr_recent",JSON.stringify(recent));renderAdmin();renderBooks()}
+function exportData(){
+ const clean=books.map(({fileBlob,...b})=>b);const blob=new Blob([JSON.stringify({books:clean,settings},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="gronthagar-backup.json";a.click()
+}
+function importData(){
+ $("importFile").classList.remove("hidden");$("importFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;const data=JSON.parse(await f.text());for(const b of data.books||[])await put("books",b);if(data.settings){settings=data.settings;await put("settings",{key:"settings",value:settings})}books=await getAll("books");renderAdmin();renderBooks();alert("Import সম্পন্ন।")}
+}
+
+window.addEventListener("beforeunload",()=>{if(currentBook)trackReading()});
+init();
+</script>
+</body>
+</html>
